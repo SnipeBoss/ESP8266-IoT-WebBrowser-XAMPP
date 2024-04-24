@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sensor Data Charts</title>
+    <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+  </head>
+
+  <body>
+    <div id="tempChart" style="height: 300px; width: 100%; display: inline-block; margin-right: 10px;"></div>
+    <div id="humidChart" style="height: 300px; width: 100%; display: inline-block;"></div>
+
+    <script>
+      // Log message to console for debugging
+      console.log("Hello World!!");
+
+      // Function to create a chart with the provided options
+      function createChart(chartContainerId, data) {
+        var options = {
+          zoomEnabled: true, // Enable chart zooming
+          animationEnabled: true, // Enable chart animations
+          title: {
+            text: data[0].name, // Set chart title based on data series name
+          },
+          axisY: {
+            includeZero: false, // Exclude zero from the Y-axis (optional)
+          },
+          data: data, // Set the chart data
+        };
+
+        $("#" + chartContainerId).CanvasJSChart(options);
+      }
+
+      // Define URLs for temperature and humidity data
+      var tempUrl =
+        "http://192.168.1.107:8080/iot_nutshell_php_code/show_data_node.php?name='temp_sensor1'";
+      var humidUrl =
+        "http://192.168.1.107:8080/iot_nutshell_php_code/show_data_node.php?name='humid_sensor1'";
+
+      // Function to make separate requests for temperature and humidity data
+      function fetchData(url, chartContainerId, color) {
+        var http = new XMLHttpRequest();
+        http.open("GET", url);
+        http.send();
+
+        http.onreadystatechange = function () {
+          if (this.readyState === 4 && this.status === 200) 
+          {
+            var obj = JSON.parse(this.responseText);
+            console.log(obj);
+
+            // Prepare data for the chart
+            var dataSeries = { type: "line" }; // Define chart type as line
+            var dataPoints = [];
+
+            // Loop through each data point in the JSON response
+            for (var i in obj) 
+            {
+              // Extract sensor value and timestamp
+              var sensorValue = obj[i].sensor_value;
+              var timestamp = obj[i].t_stamp;
+              // Parse the timestamp into a Date object
+              var date = new Date(timestamp);
+
+              // Add data point to the chart
+              dataPoints.push({
+                x: date,
+                y: parseFloat(sensorValue),
+              });
+            }
+
+            dataSeries.dataPoints = dataPoints;
+            dataSeries.name = obj[0].sensor_name; // Set chart series name based on sensor name
+            dataSeries.color = color; // Set chart line color
+
+            createChart(chartContainerId, [dataSeries]); // Call function to create the chart
+          }
+        };
+      }
+
+      // Fetch temperature and humidity data and create separate charts
+      fetchData(tempUrl, "tempChart", "red"); // Red color for temperature chart
+      fetchData(humidUrl, "humidChart", "yellow"); // Yellow color for humidity chart
+    </script>
+  </body>
+</html>
