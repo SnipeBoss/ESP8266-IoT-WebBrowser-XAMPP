@@ -12,11 +12,12 @@
 
 """ Setup wifi and server """
 // String wifi name
-const char* ssid     = "Bigboss_2.4G";
+const char* ssid     = "Wifi Name";
 // String password name
-const char* password = "0925655996";
+const char* password = "Wifi Password";
 // Set server
-String api_server = "http://localhost:8080/iot_nutshell_php_code/add_data.php";
+// http://[IP Wifi]:8080/[Xampp path]/[php file]
+String api_server = "http://[192.168.x.x]:8080/iot_nutshell_php_code/add_data.php";
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
 ESP8266WiFiMulti WiFiMulti;
